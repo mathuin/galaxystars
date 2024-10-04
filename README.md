@@ -1,3 +1,5 @@
+![Tests](https://github.com/mathuin/galaxystars/actions/workflows/swift.yml/badge.svg)
+
 # galaxystars
 
 This is a practice project to help me learn more about Swift and Vapor, specifically Fluent.  It's a simple CRUD app for galaxies, stars, asteroids, and planets.
