@@ -41,4 +41,7 @@ jobs:
         xcode-version: latest-stable
     - uses: actions/checkout@v3
     - name: Build and test
-      run: swift test --parallel
+      run: |
+        yes | swift run App migrate --revert --env testing
+        yes | swift run App migrate --env testing
+        swift test
