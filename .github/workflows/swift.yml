@@ -7,9 +7,35 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  test:
     runs-on: macos-latest
+    env:
+      PGHOST: localhost
+      PGDATABASE: vapor_test
+      PGUSERNAME: vapor_username
+      PGPASSWORD: vapor_password
     steps:
+    - name: Install PostgreSQL on macOS
+      run: |
+        brew install postgresql@16
+        brew link --overwrite postgresql@16
+    - name: Start PostgreSQL
+      shell: bash
+      run: |
+        echo "Initializing database cluster..."
+        export PGHOST="${RUNNER_TEMP//\\//}/postgres"
+        export PGDATA="$PGHOST/pgdata"
+        mkdir -p "$PGDATA"
+        export PWFILE="$RUNNER_TEMP/pwfile"
+        echo "postgres" > "$PWFILE"
+        initdb --pgdata="$PGDATA" --username="postgres" --pwfile="$PWFILE"
+        echo "Starting PostgreSQL..."
+        echo "unix_socket_directories = '$PGHOST'" >> "$PGDATA/postgresql.conf"
+        pg_ctl start
+        echo "Creating user..."
+        psql --host "$PGHOST" --username="postgres" --dbname="postgres" --command="CREATE USER $PGUSERNAME PASSWORD '$PGPASSWORD'" --command="\du"
+        echo "Creating database..."
+        createdb --owner="$PGUSERNAME" --username="postgres" "$PGDATABASE"
     - uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: latest-stable
